@@ -59,7 +59,7 @@ function ChatSidebar({
   const chats = useLiveQuery(() => db.chats.toArray()) || [];
 
   return (
-    <div className="h-full bg-white  p-4 rounded-md">
+    <div className="h-full  p-4 rounded-md">
       <div className="mb-4 flex justify-between text-neutral-600 items-center">
         <button onClick={onToggle} className="p-2 cursor-pointer">
           <HiMenu size={24} />
