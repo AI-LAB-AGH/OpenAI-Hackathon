@@ -6,28 +6,31 @@ import numpy as np
 from agents import Agent, function_tool
 from agents.extensions.handoff_prompt import prompt_with_handoff_instructions
 from agents.voice import (
-    AudioInput,
     StreamedAudioInput,
     SingleAgentVoiceWorkflow,
     SingleAgentWorkflowCallbacks,
     VoicePipeline,
 )
 
-from .utils import AudioPlayer, record_audio, ContinuousAudioStreamer
+from .utils import AudioPlayer, ContinuousAudioStreamer
 
 """
-This is a simple example that uses continuous streaming audio input. Run it via:
-`python -m examples.voice.static.main`
+This is an example that uses continuous streaming audio input from the microphone.
+Run it via: `python -m examples.voice.static.main`
 
-1. The microphone will continuously record audio
-2. The pipeline automatically transcribes the audio as it's streamed
-3. The agent workflow is a simple one that starts at the Assistant agent.
-4. The output of the agent is streamed to the audio player.
+Features:
+1. The microphone continuously records audio in real-time
+2. Audio chunks are streamed to the pipeline as they are captured
+3. The pipeline automatically transcribes the streaming audio
+4. The agent workflow processes the transcription and generates responses
+5. The output of the agent is streamed to the audio player
 
 Try examples like:
 - Tell me a joke (will respond with a joke)
 - What's the weather in Tokyo? (will call the `get_weather` tool and then speak)
 - Hola, como estas? (will handoff to the spanish agent)
+
+Press Ctrl+C to stop the program.
 """
 
 
