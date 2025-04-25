@@ -66,19 +66,31 @@ summary_agent = Agent(
     ],
 )
 
+note_search_agent = Agent(
+    name="NoteSearch",
+    model="gpt-4.1-mini",
+    instructions=note_search_agent_prompt,
+    tools=[FileSearchTool(
+        max_num_results=3,
+        vector_store_ids=["vs_680bdcfb44dc8191a0a7bca1c8e2ef77"]
+    )],
+    output_type=str
+)
+
 main_agent = Agent(
     name="Assistant",
     model="gpt-4.1-mini",
     instructions=main_assistant_prompt,
-    handoffs=[quiz_agent, open_question_agent, closed_question_agent, review_agent, summary_agent],
+    handoffs=[quiz_agent, open_question_agent, closed_question_agent, review_agent, summary_agent, note_search_agent],
     # model_settings=ModelSettings(tool_choice="required")
 )
 
 async def main():
-    user_input = "Could you generate a quiz based on my latest biology notes?"
+    # user_input = "Could you generate a quiz based on my latest biology notes?"
     # user_input = "Could you generate a question based on my latest biology notes?"
     # user_input = "Could you generate a review of my latest notes?"
     # user_input = "Could you generate a summary of my latest notes?"
+    user_input = 'Hey, did I get that last part on my genetics notes right? Im not sure about that'
     result = await Runner.run(main_agent, user_input)
     response_type = result.last_agent.name
     try:
