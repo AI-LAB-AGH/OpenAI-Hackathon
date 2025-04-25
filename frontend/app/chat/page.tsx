@@ -35,7 +35,7 @@ export default function ChatPage() {
           />
         </div>
       )}
-      <div className="flex-1 bg-white rounded-md">
+      <div className="flex-1">
         <Chat
           activeChatId={activeChatId}
           onCreateChat={handleCreateChat}

@@ -22,19 +22,19 @@ export default function CanvasEditor({
   };
 
   return (
-    <div className="bg-white ">
+    <div className="bg-slate-50 ">
       <form className="space-y-4" onSubmit={handleSave}>
         <div>
           <input
             type="text"
             defaultValue={canvasData.title}
-            className="w-full text-3xl font-bold mb-2 py-2 border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none transition-colors"
+            className="w-full text-3xl font-bold mb-2 py-2 border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none transition-colors"
           />
         </div>
 
-        <div className="border relative h-[70vh] w-full">
+        <div className="border relative h-[80vh] w-full">
           <SignatureCanvas
-            penColor="green"
+            penColor="black"
             canvasProps={{ className: "w-full h-full" }}
           />
 
