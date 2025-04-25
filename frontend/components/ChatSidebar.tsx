@@ -59,7 +59,7 @@ function ChatSidebar({
   const chats = useLiveQuery(() => db.chats.toArray()) || [];
 
   return (
-    <div className="h-full  p-4 rounded-md">
+    <div className="h-full ">
       <div className="mb-4 flex justify-between text-neutral-600 items-center">
         <button onClick={onToggle} className="p-2 cursor-pointer">
           <HiMenu size={24} />
@@ -85,7 +85,9 @@ function ChatSidebar({
           </li>
         ))}
 
-        {chats.length === 0 && <p className="text-gray-400 px-3">No chats</p>}
+        {chats.length === 0 && (
+          <p className="text-gray-500 px-3">New chats will appear here</p>
+        )}
       </ol>
     </div>
   );
