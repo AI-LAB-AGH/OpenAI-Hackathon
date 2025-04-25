@@ -82,8 +82,8 @@ export default function Chat({
   }
 
   return (
-    <div className="rounded-xl  h-full flex flex-col">
-      <div className="flex justify-between items-center mb-4">
+    <div className="h-full flex flex-col">
+      <div className="flex justify-between  items-center mb-4">
         {onShowSidebar && (
           <button onClick={onShowSidebar} className="p-2 cursor-pointer">
             <HiMenu size={24} />
@@ -91,7 +91,7 @@ export default function Chat({
         )}
       </div>
 
-      <div className="flex-1 overflow-y-auto p-2 space-y-4">
+      <div className="flex-1 overflow-y-autop-2 space-y-4">
         {displayMessages.map((msg, index) => (
           <Message key={index} content={msg.content} role={msg.role} />
         ))}

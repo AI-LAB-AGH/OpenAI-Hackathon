@@ -18,7 +18,7 @@ export default function NotePage({ params }: { params: { id: string } }) {
   };
 
   return (
-    <div className="max-w-3xl mx-auto py-8">
+    <div className="max-w-5xl mx-auto py-8">
       <div className="mb-6">
         <Button variant="link" asChild className="px-0">
           <Link href="/">← Back to notes</Link>
