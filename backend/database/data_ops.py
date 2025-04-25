@@ -14,8 +14,8 @@ notes = db.get_collection("notes")
 class Note(BaseModel):
     title: str
     content: str
-    created_at: datetime = Field(default_factory=datetime.now)
-    updated_at: datetime = Field(default_factory=datetime.now)
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
 class NoteInDB(Note):
     id: str = Field(alias="_id")
@@ -23,6 +23,8 @@ class NoteInDB(Note):
 
 async def create_note(note: Note) -> Optional[NoteInDB]:
     note_dict = note.model_dump()
+    note_dict["created_at"] = datetime.now()
+    note_dict["updated_at"] = datetime.now()
     result = await notes.insert_one(note_dict)
     if not result.inserted_id:
         return None
