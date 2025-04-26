@@ -7,7 +7,10 @@ from bson import ObjectId
 
 
 print(os.getenv("MONGODB_URL"))
-db_client = motor.motor_asyncio.AsyncIOMotorClient(os.getenv("MONGODB_URL"))
+
+UWAGA_MONGO = "mongodb+srv://adasta146:KOghmcuM1RwR84SN@cluster0.plxr9m4.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+
+db_client = motor.motor_asyncio.AsyncIOMotorClient(UWAGA_MONGO)
 db = db_client.get_database("notes")
 notes = db.get_collection("notes")
 
