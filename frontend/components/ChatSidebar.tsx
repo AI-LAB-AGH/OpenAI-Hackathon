@@ -55,8 +55,8 @@ function ChatSidebar({
   const chats = useLiveQuery(() => db.chats.toArray()) || [];
 
   return (
-    <div className="h-full">
-      <div className="mb-4 flex justify-end pt-2 text-neutral-600 items-center">
+    <div className="h-full border-r mr-4 pr-4">
+      <div className="mb-4 flex  justify-end pt-2 text-neutral-600 items-center">
         <button className="p-1 cursor-pointer text-neutral-600 hover:bg-neutral-100 rounded-md">
           <HiOutlineChat
             className="cursor-pointer"
@@ -79,7 +79,7 @@ function ChatSidebar({
         ))}
 
         {chats.length === 0 && (
-          <p className="text-gray-500 px-3">New chats will appear here</p>
+          <p className="text-gray-500">New chats will appear here</p>
         )}
       </ol>
     </div>

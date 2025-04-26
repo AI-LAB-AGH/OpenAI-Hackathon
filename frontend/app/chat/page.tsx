@@ -1,12 +1,21 @@
 "use client";
 import Chat from "@/components/Chat";
 import ChatSidebar from "@/components/ChatSidebar";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { HiMenu } from "react-icons/hi";
+import { useSearchParams } from "next/navigation";
 
 export default function ChatPage() {
   const [isSidebarShown, setIsSidebarShown] = useState(false);
   const [activeChatId, setActiveChatId] = useState<number | null>(null);
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const chatId = searchParams.get("chatId");
+    if (chatId) {
+      setActiveChatId(Number(chatId));
+    }
+  }, [searchParams]);
 
   const showSidebar = () => {
     setIsSidebarShown(true);
@@ -37,7 +46,9 @@ export default function ChatPage() {
         </div>
         <div
           className={`transition-all duration-300 ${
-            isSidebarShown ? "w-64 opacity-100" : "w-0 opacity-0"
+            isSidebarShown
+              ? "w-64 opacity-100 bg-white shadow-lg"
+              : "w-0 opacity-0"
           }`}
         >
           {isSidebarShown && (

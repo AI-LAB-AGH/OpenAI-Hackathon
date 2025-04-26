@@ -25,6 +25,7 @@ import {
 import FullscreenCanvas from "@/components/canvas/FullscreenCanvas";
 import { canvasStorage } from "@/lib/canvasStorage";
 import Link from "next/link";
+import { useDebounce } from "@/hooks/useDebounce";
 
 interface NoteEditorProps {
   noteData: Note;
@@ -44,8 +45,13 @@ export default function NoteEditor({ noteData }: NoteEditorProps) {
   const [showCanvas, setShowCanvas] = useState(false);
   const [isCanvasFullscreen, setIsCanvasFullscreen] = useState(false);
   const canvasRef = useRef<SignatureCanvas>(null);
-  const noteId = noteData.id || "new-note"; // Ensure we always have a string ID
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const noteId = noteData.id || "new-note";
   const hasCanvas = canvasStorage.getCanvas(noteId) !== null;
+
+  // Debounce the title and content changes
+  const debouncedTitle = useDebounce(title, 1000);
+  const debouncedContent = useDebounce(content, 1000);
 
   const [windowDimensions, setWindowDimensions] = useState({
     width: typeof window !== "undefined" ? window.innerWidth : 0,
@@ -53,7 +59,6 @@ export default function NoteEditor({ noteData }: NoteEditorProps) {
   });
 
   const [canvasData, setCanvasData] = useState<string | null>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Handle window resize when canvas is fullscreen
   React.useEffect(() => {
@@ -86,6 +91,42 @@ export default function NoteEditor({ noteData }: NoteEditorProps) {
   useEffect(() => {
     adjustTextareaHeight();
   }, [content]);
+
+  // Auto-save when debounced values change
+  useEffect(() => {
+    const autoSave = async () => {
+      if (!noteData.id) return; // Don't auto-save new notes
+
+      setIsSaving(true);
+      setSaveError(null);
+      setSaveSuccess(false);
+
+      try {
+        const currentCanvasData = saveCanvasData();
+        const updatedNote: Note = {
+          ...noteData,
+          title: debouncedTitle,
+          content: debouncedContent,
+          canvasData: currentCanvasData,
+        };
+
+        const result = await noteApi.updateNote(noteData.id, updatedNote);
+        if (!result.success) {
+          throw new Error(result.error || "Failed to save note");
+        }
+        setSaveSuccess(true);
+      } catch (error) {
+        console.error("Error saving note:", error);
+        setSaveError(
+          error instanceof Error ? error.message : "An unknown error occurred"
+        );
+      } finally {
+        setIsSaving(false);
+      }
+    };
+
+    autoSave();
+  }, [debouncedTitle, debouncedContent]);
 
   const formattedDate = noteData.created_at
     ? new Date(noteData.created_at).toLocaleDateString("en-US", {
@@ -183,7 +224,7 @@ export default function NoteEditor({ noteData }: NoteEditorProps) {
 
   return (
     <div className="bg-white">
-      <form className="space-y-4" onSubmit={handleSave}>
+      <div className="space-y-4">
         <div>
           <div className="flex items-center justify-between">
             <input
@@ -263,7 +304,7 @@ export default function NoteEditor({ noteData }: NoteEditorProps) {
         )}
 
         <div
-          className="mb-6 flex justify-start items-center cursor-pointer hover:text-blue-500 text-gray-600 mt-2 "
+          className="mb-6 flex justify-start items-center cursor-pointer hover:text-blue-500 text-gray-600 mt-2"
           onClick={handleAddCanvas}
         >
           <HiPencil size={24} />
@@ -275,13 +316,10 @@ export default function NoteEditor({ noteData }: NoteEditorProps) {
           <div className="text-green-500 mt-2">Note saved successfully!</div>
         )}
         {deleteError && <div className="text-red-500 mt-2">{deleteError}</div>}
-
-        <div className="pt-4">
-          <Button type="submit" disabled={isSaving}>
-            {isSaving ? "Saving..." : "Save Changes"}
-          </Button>
-        </div>
-      </form>
+        {isSaving && (
+          <div className="text-gray-500 mt-2">Saving changes...</div>
+        )}
+      </div>
     </div>
   );
 }

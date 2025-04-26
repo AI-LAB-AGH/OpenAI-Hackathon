@@ -7,6 +7,7 @@ import { HiMenu } from "react-icons/hi";
 import { useStreamingChat } from "@/hooks/useChat";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "@/db/db";
+import ChatEmptyState from "./ChatEmptyState";
 
 interface ChatProps {
   activeChatId: number | null;
@@ -67,7 +68,7 @@ export default function Chat({
   };
 
   return (
-    <div className="h-full  flex flex-col mx-auto max-w-5xl">
+    <div className="h-full flex flex-col mx-auto max-w-5xl">
       <div className="flex justify-between items-center mb-4">
         {onShowSidebar && (
           <button onClick={onShowSidebar} className="p-2 cursor-pointer">
@@ -77,14 +78,20 @@ export default function Chat({
       </div>
 
       <div className="flex-1 overflow-y-auto p-2 space-y-4">
-        {dbMessages.map((msg, index) => (
-          <Message key={index} content={msg.content} role={msg.role} />
-        ))}
-        {isLoading && streamingMessage && (
-          <Message content={streamingMessage} role="assistant" />
+        {dbMessages.length === 0 && !isLoading && !streamingMessage ? (
+          <ChatEmptyState />
+        ) : (
+          <>
+            {dbMessages.map((msg, index) => (
+              <Message key={index} content={msg.content} role={msg.role} />
+            ))}
+            {isLoading && streamingMessage && (
+              <Message content={streamingMessage} role="assistant" />
+            )}
+            {isLoading && !streamingMessage && <LoadingDot />}
+            <div ref={messagesEndRef} />
+          </>
         )}
-        {isLoading && !streamingMessage && <LoadingDot />}
-        <div ref={messagesEndRef} />
       </div>
 
       <div className="mt-2">

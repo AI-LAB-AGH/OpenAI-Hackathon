@@ -17,9 +17,9 @@ export default function Header() {
         <div className="flex items-center">
           <Link
             href="/"
-            className="text-xl font-semibold text-gray-800 hover:text-gray-600"
+            className="text-xl font-bold text-gray-800 hover:text-gray-600"
           >
-            AAA
+            Lumina
           </Link>
         </div>
 

@@ -6,15 +6,17 @@ import {
   HiOutlineDocumentText,
   HiOutlineMicrophone,
   HiOutlinePlusCircle,
+  HiOutlineChat,
 } from "react-icons/hi";
 import NewestNotes from "@/components/home/NewestNotes";
 import HomeButtons from "@/components/home/HomeButtons";
+import RecentChats from "@/components/home/RecentChats";
 
 export default function Home() {
   return (
-    <div className="gap-24 flex max-w-5xl mx-auto flex-col min-h-screen pt-16 w-full">
-      <section id="chat">
-        <div className="flex items-center gap-6">
+    <div className="gap-20 flex max-w-5xl mx-auto flex-col min-h-screen pt-12  w-full">
+      <section id="hero">
+        <div className="flex items-center gap-8">
           <div className="relative w-40 h-40">
             <div
               className="absolute inset-0 bg-amber-400/20 rounded-full opacity-40 animate-ping"
@@ -35,8 +37,8 @@ export default function Home() {
             </div>
           </div>
           <div>
-            <h1 className="text-2xl mb-2 font-semibold">
-              Your Notes, Smarter Than Ever
+            <h1 className="text-2xl mb-4 font-semibold">
+              Conversations with Your Knowledge
             </h1>
             <p className="mb-4">
               Transform scattered thoughts into smart insights with AI
@@ -47,11 +49,11 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Notes Section */}
-      <section id="notes">
+      <section id="notes" className="space-y-8">
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-semibold">Recent notes</h1>
+            <HiOutlineDocumentText size={24} className="text-amber-400" />
+            <h2 className="text-2xl font-medium">Newest Notes</h2>
           </div>
           <div className="flex items-center">
             <Button variant="ghost" asChild>
@@ -66,6 +68,14 @@ export default function Home() {
         </div>
 
         <NewestNotes />
+      </section>
+
+      <section id="recent-chats" className="space-y-8">
+        <div className="flex items-center mb-6 gap-2">
+          <HiOutlineChat size={24} className="text-amber-400" />
+          <h2 className="text-2xl font-medium">Recent Chats</h2>
+        </div>
+        <RecentChats />
       </section>
     </div>
   );

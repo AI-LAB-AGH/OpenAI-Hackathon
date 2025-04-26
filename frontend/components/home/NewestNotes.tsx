@@ -37,7 +37,7 @@ function NewestNotes() {
   if (loading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {[...Array(5)].map((_, index) => (
+        {[...Array(6)].map((_, index) => (
           <div
             key={index}
             className="h-32 rounded-md bg-gray-100 animate-pulse"
