@@ -29,18 +29,18 @@ export default function Header() {
             <ul className="flex space-x-6">
               <li>
                 <Link
-                  href="/chat"
-                  className="text-gray-600 hover:text-gray-900"
-                >
-                  Chat
-                </Link>
-              </li>
-              <li>
-                <Link
                   href="/notes"
                   className="text-gray-600 hover:text-gray-900"
                 >
                   Notes
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/chat"
+                  className="text-gray-600 hover:text-gray-900"
+                >
+                  Chat
                 </Link>
               </li>
             </ul>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Note } from "@/lib/types";
 import { noteApi } from "@/lib/api";
@@ -53,6 +53,7 @@ export default function NoteEditor({ noteData }: NoteEditorProps) {
   });
 
   const [canvasData, setCanvasData] = useState<string | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Handle window resize when canvas is fullscreen
   React.useEffect(() => {
@@ -73,6 +74,18 @@ export default function NoteEditor({ noteData }: NoteEditorProps) {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, [isCanvasFullscreen]);
+
+  const adjustTextareaHeight = () => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = "auto";
+      textarea.style.height = `${textarea.scrollHeight}px`;
+    }
+  };
+
+  useEffect(() => {
+    adjustTextareaHeight();
+  }, [content]);
 
   const formattedDate = noteData.created_at
     ? new Date(noteData.created_at).toLocaleDateString("en-US", {
@@ -228,15 +241,15 @@ export default function NoteEditor({ noteData }: NoteEditorProps) {
 
         <div className="prose max-w-none">
           {isPreviewMode ? (
-            <div className="min-h-[300px]   rounded-md bg-white overflow-auto">
+            <div className="min-h-[300px] rounded-md bg-white overflow-auto">
               <ReactMarkdown>{content}</ReactMarkdown>
             </div>
           ) : (
             <textarea
+              ref={textareaRef}
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              rows={12}
-              className="w-full p-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none overflow-hidden min-h-[300px] transition-all duration-200"
               placeholder="Write your note content here..."
             ></textarea>
           )}
@@ -250,7 +263,7 @@ export default function NoteEditor({ noteData }: NoteEditorProps) {
         )}
 
         <div
-          className="flex justify-center items-center cursor-pointer hover:text-blue-500 text-gray-600 mt-2 mb-2"
+          className="mb-6 flex justify-start items-center cursor-pointer hover:text-blue-500 text-gray-600 mt-2 "
           onClick={handleAddCanvas}
         >
           <HiPencil size={24} />
