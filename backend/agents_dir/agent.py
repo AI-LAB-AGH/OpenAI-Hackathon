@@ -1,4 +1,4 @@
-from prompts import *
+from agents_dir.prompts import *
 from agents import Agent, FileSearchTool
 
 speaking_agent = Agent(
