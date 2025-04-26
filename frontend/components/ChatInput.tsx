@@ -1,5 +1,7 @@
 "use client";
 import { useState, useRef, useEffect, KeyboardEvent } from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 interface ChatInputProps {
   isLoading: boolean;
@@ -38,36 +40,29 @@ export default function ChatInput({
   }, [message]);
 
   return (
-    <form onSubmit={handleSubmit} className="flex rounded-lg gap-2">
+    <form onSubmit={handleSubmit} className="flex gap-2">
       <textarea
         autoFocus
         ref={textareaRef}
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         onKeyDown={handleKeyDown}
-        className="flex-1 px-4 py-2 rounded-lg  bg-neutral-200 resize-none min-h-[32px]  max-h-[160px]"
+        className={cn(
+          "flex-1 min-h-[40px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm",
+          "placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
+          "disabled:cursor-not-allowed disabled:opacity-50",
+          "resize-none max-h-[160px]"
+        )}
         placeholder="Type a message..."
         rows={1}
       />
-      {/* <Textarea
-        autoFocus
-        ref={textareaRef}
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        onKeyDown={handleKeyDown}
-        placeholder="Type a message..."
-        rows={1}
-      /> */}
-
-      {/* <Button type="submit" disabled={!message.trim() || isLoading}>
-        Send
-      </Button> */}
-      <button
+      <Button
         type="submit"
-        className="bg-white px-4 py-2 rounded-lg self-end cursor-pointer"
+        disabled={!message.trim() || isLoading}
+        className="self-end"
       >
         Send
-      </button>
+      </Button>
     </form>
   );
 }

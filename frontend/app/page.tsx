@@ -2,32 +2,47 @@ import NoteCard from "@/components/NoteCard";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { HiOutlineDocumentText, HiOutlinePlusCircle } from "react-icons/hi";
+import {
+  HiOutlineDocumentText,
+  HiOutlineMicrophone,
+  HiOutlinePlusCircle,
+} from "react-icons/hi";
 import NewestNotes from "@/components/home/NewestNotes";
+import HomeButtons from "@/components/home/HomeButtons";
 
 export default function Home() {
   return (
-    <div className="gap-16 flex max-w-5xl mx-auto flex-col min-h-screen py-8 w-full">
+    <div className="gap-24 flex max-w-5xl mx-auto flex-col min-h-screen pt-16 w-full">
       <section id="chat">
         <div className="flex items-center gap-6">
-          <div className="relative w-12 h-12">
+          <div className="relative w-40 h-40">
             <div
-              className="absolute inset-0 bg-slate-300 rounded-full opacity-40 animate-ping"
+              className="absolute inset-0 bg-amber-400/20 rounded-full opacity-40 animate-ping"
               style={{ animationDuration: "3s" }}
             ></div>
             <div
-              className="absolute inset-0 bg-slate-400 rounded-full opacity-50 animate-pulse"
+              className="absolute inset-0 bg-yellow-300/50 rounded-full opacity-50 animate-pulse"
               style={{ animationDuration: "2s" }}
             ></div>
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-8 h-8 bg-slate-700 rounded-full shadow-lg"></div>
+              <Image
+                src="/app-illustration.png"
+                alt="App illustration"
+                width={128}
+                height={128}
+                className="rounded-full"
+              />
             </div>
           </div>
           <div>
-            <h1 className="text-2xl mb-4 font-bold">AI Assistant</h1>
-            <Button asChild>
-              <Link href="/chat">Open chat</Link>
-            </Button>
+            <h1 className="text-2xl mb-2 font-semibold">
+              Your Notes, Smarter Than Ever
+            </h1>
+            <p className="mb-4">
+              Transform scattered thoughts into smart insights with AI
+              assistance
+            </p>
+            <HomeButtons />
           </div>
         </div>
       </section>
@@ -36,7 +51,7 @@ export default function Home() {
       <section id="notes">
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold">Recent notes</h1>
+            <h1 className="text-2xl font-semibold">Recent notes</h1>
           </div>
           <div className="flex items-center">
             <Button variant="ghost" asChild>

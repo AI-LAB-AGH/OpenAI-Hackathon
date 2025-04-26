@@ -1,17 +1,13 @@
 "use client";
-import { useState } from "react";
 import { cn } from "@/lib/utils";
 import VoiceRecorder from "./VoiceRecorder";
+import { useAIAgentStore } from "@/store/aiAgentStore";
 
 export default function AIAgentCall() {
-  const [isActive, setIsActive] = useState(false);
-
-  const handleClick = () => {
-    setIsActive(true);
-  };
+  const { isActive, setActive } = useAIAgentStore();
 
   const handleEndCall = () => {
-    setIsActive(false);
+    setActive(false);
   };
 
   return (
@@ -24,7 +20,7 @@ export default function AIAgentCall() {
             ? "w-[250px] h-[60px] rounded-3xl"
             : "w-10 h-10 rounded-full cursor-pointer"
         )}
-        onClick={!isActive ? handleClick : undefined}
+        onClick={!isActive ? () => setActive(true) : undefined}
       >
         {!isActive ? (
           <div className="w-6 h-6 rounded-full bg-amber-500 animate-[pulse_2s_ease-in-out_infinite]" />

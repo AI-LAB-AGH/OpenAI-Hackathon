@@ -12,7 +12,7 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-white border-b border-gray-200 py-4">
+    <header className="bg-white py-4">
       <div className="max-w-5xl mx-auto px-6 lg:px-0 flex justify-between items-center relative">
         <div className="flex items-center">
           <Link

@@ -17,6 +17,16 @@ interface NoteCardProps {
 }
 
 function NoteCard({ id, title, description }: NoteCardProps) {
+  // Strip out markdown syntax
+  const cleanDescription = description
+    .replace(/#{1,6}\s/g, "") // Remove headers
+    .replace(/\*\*|\*|`|_/g, "") // Remove bold, italic, code, and underline
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1") // Remove links, keep text
+    .replace(/!\[([^\]]*)\]\([^)]+\)/g, "") // Remove images
+    .replace(/>\s/g, "") // Remove blockquotes
+    .replace(/\n/g, " ") // Replace newlines with spaces
+    .trim();
+
   return (
     <Link
       href={`/notes/${id}`}
@@ -28,7 +38,7 @@ function NoteCard({ id, title, description }: NoteCardProps) {
           <div>
             <CardTitle className="line-clamp-1">{title}</CardTitle>
             <CardDescription className="line-clamp-1">
-              {description}
+              {cleanDescription}
             </CardDescription>
           </div>
         </CardHeader>

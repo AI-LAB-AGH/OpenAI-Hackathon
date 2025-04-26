@@ -1,8 +1,4 @@
 {
-    "response_type": "OpenQuestion",
-    "response_content": {
-        "question": "What did the DNA say to the RNA?",
-        "how_difficult": 1,
-        "mark": 0
-    }
+    "response_type": "Summary",
+    "response_content": "DNA is a double-stranded molecule made of nucleotides with bases A, T, G, and C, storing genetic information and serving as a template for replication and transcription. RNA is single-stranded, uses bases A, U (instead of T), G, and C, and functions as messenger RNA (mRNA), transfer RNA (tRNA), or ribosomal RNA (rRNA). Gene expression involves transcription, where DNA is copied into mRNA, and translation, where mRNA guides protein synthesis with the help of tRNA and ribosomes. DNA\u2019s base pairing (A-T, G-C) differs from RNA\u2019s where uracil (U) substitutes thymine (T). This system enables genetic information to flow from DNA to RNA to proteins, facilitating cellular function and inheritance."
 }

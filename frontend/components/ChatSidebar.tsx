@@ -52,19 +52,12 @@ function ChatSidebar({
   activeChatId,
   onChatSelect,
 }: ChatSidebarProps) {
-  if (!isSidebarShown) {
-    return null;
-  }
-
   const chats = useLiveQuery(() => db.chats.toArray()) || [];
 
   return (
-    <div className="h-full ">
-      <div className="mb-4 flex justify-between text-neutral-600 items-center">
-        <button onClick={onToggle} className="p-2 cursor-pointer">
-          <HiMenu size={24} />
-        </button>
-        <button>
+    <div className="h-full">
+      <div className="mb-4 flex justify-end pt-2 text-neutral-600 items-center">
+        <button className="p-1 cursor-pointer text-neutral-600 hover:bg-neutral-100 rounded-md">
           <HiOutlineChat
             className="cursor-pointer"
             size={24}

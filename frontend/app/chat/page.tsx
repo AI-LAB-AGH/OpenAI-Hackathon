@@ -2,6 +2,7 @@
 import Chat from "@/components/Chat";
 import ChatSidebar from "@/components/ChatSidebar";
 import { useState } from "react";
+import { HiMenu } from "react-icons/hi";
 
 export default function ChatPage() {
   const [isSidebarShown, setIsSidebarShown] = useState(false);
@@ -24,23 +25,33 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="flex gap-6 h-[90vh] p-4">
-      {isSidebarShown && (
-        <div className="w-1/5">
-          <ChatSidebar
-            isSidebarShown={isSidebarShown}
-            onToggle={hideSidebar}
-            activeChatId={activeChatId || undefined}
-            onChatSelect={handleChatSelect}
-          />
+    <div className="flex h-[90vh] max-w-5xl mx-auto">
+      <div className="flex">
+        <div className="w-fit flex flex-col items-center pt-2">
+          <button
+            onClick={isSidebarShown ? hideSidebar : showSidebar}
+            className="cursor-pointer text-neutral-600 hover:bg-neutral-100 rounded-md"
+          >
+            <HiMenu size={24} />
+          </button>
         </div>
-      )}
+        <div
+          className={`transition-all duration-300 ${
+            isSidebarShown ? "w-64 opacity-100" : "w-0 opacity-0"
+          }`}
+        >
+          {isSidebarShown && (
+            <ChatSidebar
+              isSidebarShown={isSidebarShown}
+              onToggle={hideSidebar}
+              activeChatId={activeChatId || undefined}
+              onChatSelect={handleChatSelect}
+            />
+          )}
+        </div>
+      </div>
       <div className="flex-1">
-        <Chat
-          activeChatId={activeChatId}
-          onCreateChat={handleCreateChat}
-          onShowSidebar={!isSidebarShown ? showSidebar : undefined}
-        />
+        <Chat activeChatId={activeChatId} onCreateChat={handleCreateChat} />
       </div>
     </div>
   );

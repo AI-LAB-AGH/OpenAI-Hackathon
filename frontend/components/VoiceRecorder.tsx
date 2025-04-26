@@ -147,7 +147,7 @@ export default function VoiceRecorder({ onEndCall }: VoiceRecorderProps) {
 
         <button
           onClick={handleEndCall}
-          className="p-2 rounded-full bg-destructive text-destructive-foreground transition-colors"
+          className="p-2 cursor-pointer rounded-full bg-destructive text-destructive-foreground transition-colors"
         >
           <HiOutlinePhoneMissedCall className="w-4 h-4 text-white" />
         </button>
