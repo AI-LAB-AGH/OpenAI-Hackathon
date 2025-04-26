@@ -8,31 +8,23 @@ import {
   CardTitle,
 } from "./ui/card";
 import Link from "next/link";
-import { HiOutlineDocumentText, HiOutlinePencilAlt } from "react-icons/hi";
+import { HiOutlineDocumentText } from "react-icons/hi";
 
 interface NoteCardProps {
   id: string;
   title: string;
   description: string;
-  type?: "text" | "canvas";
 }
 
-function NoteCard({ id, title, description, type = "text" }: NoteCardProps) {
-  // Determine the correct route based on the type
-  const route = type === "text" ? "/notes/" : "/canvas/";
-
+function NoteCard({ id, title, description }: NoteCardProps) {
   return (
     <Link
-      href={`${route}${id}`}
+      href={`/notes/${id}`}
       className="block transition-transform hover:scale-[1.01]"
     >
       <Card className="cursor-pointer hover:shadow-md">
         <CardHeader className="flex gap-4">
-          {type === "text" ? (
-            <HiOutlineDocumentText size={32} />
-          ) : (
-            <HiOutlinePencilAlt size={32} />
-          )}
+          <HiOutlineDocumentText className="min-w-8" size={32} />
           <div>
             <CardTitle className="line-clamp-1">{title}</CardTitle>
             <CardDescription className="line-clamp-1">

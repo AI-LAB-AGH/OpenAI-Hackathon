@@ -9,7 +9,12 @@ import { Note } from "@/lib/types";
 
 export default function NewNotePage() {
   const router = useRouter();
-  const [note, setNote] = useState<Note>({ title: "", content: "" });
+  const [note, setNote] = useState<Note>({
+    id: "",
+    title: "",
+    content: "",
+    created_at: new Date().toISOString(),
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
