@@ -19,9 +19,8 @@ export default function Chat({
   activeChatId,
   onCreateChat,
 }: ChatProps) {
-  const { isLoading, streamingContent, sendStreamedMessage } = useChat();
+  const { isLoading, sendMessage } = useChat();
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const lastResponseIdRef = useRef<string | null>(null);
 
   // Get messages from database
   const dbMessages =
@@ -29,20 +28,10 @@ export default function Chat({
       if (!activeChatId) {
         return [];
       }
-      const messages = await db.messages
+      return await db.messages
         .where("chatId")
         .equals(activeChatId)
         .sortBy("createdAt");
-
-      // Find the last assistant message with a responseId
-      for (let i = messages.length - 1; i >= 0; i--) {
-        if (messages[i].role === "assistant" && messages[i].responseId) {
-          lastResponseIdRef.current = messages[i].responseId ?? null;
-          break;
-        }
-      }
-
-      return messages;
     }, [activeChatId]) || [];
 
   function scrollToBottom() {
@@ -51,7 +40,7 @@ export default function Chat({
 
   useEffect(() => {
     scrollToBottom();
-  }, [dbMessages, isLoading, streamingContent]);
+  }, [dbMessages, isLoading]);
 
   const handleSendMessage = async (message: string) => {
     // If no active chat, create a new one
@@ -64,26 +53,16 @@ export default function Chat({
       onCreateChat(newChatId);
 
       // Using the newly created chat
-      sendStreamedMessage(message, newChatId, null);
+      sendMessage(message, newChatId, null);
     } else {
       // Using existing chat
-      sendStreamedMessage(message, activeChatId, lastResponseIdRef.current);
+      sendMessage(message, activeChatId, null);
     }
   };
 
-  // Display messages with streaming support
-  const displayMessages = [...dbMessages];
-  // If we're streaming, replace the last message content with the streaming content
-  if (isLoading && streamingContent && displayMessages.length > 0) {
-    const lastMessage = displayMessages[displayMessages.length - 1];
-    if (lastMessage.role === "assistant" && lastMessage.content === "") {
-      lastMessage.content = streamingContent;
-    }
-  }
-
   return (
     <div className="h-full flex flex-col">
-      <div className="flex justify-between  items-center mb-4">
+      <div className="flex justify-between items-center mb-4">
         {onShowSidebar && (
           <button onClick={onShowSidebar} className="p-2 cursor-pointer">
             <HiMenu size={24} />
@@ -91,11 +70,11 @@ export default function Chat({
         )}
       </div>
 
-      <div className="flex-1 overflow-y-autop-2 space-y-4">
-        {displayMessages.map((msg, index) => (
+      <div className="flex-1 overflow-y-auto p-2 space-y-4">
+        {dbMessages.map((msg, index) => (
           <Message key={index} content={msg.content} role={msg.role} />
         ))}
-        {isLoading && !streamingContent && <LoadingDot />}
+        {isLoading && <LoadingDot />}
         <div ref={messagesEndRef} />
       </div>
 
