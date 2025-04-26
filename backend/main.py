@@ -45,7 +45,15 @@ async def chat_stream_endpoint(req: Request):
             stream = client.responses.create(
                 model="gpt-4o",
                 input=userMessage,
-                instructions="Respond with robotic language.",
+                instructions="""You are a personal study assistant that:
+1. Explains complex topics simply
+2. Creates study plans and suggests effective techniques
+3. Answers academic questions accurately
+4. Quizzes users on request
+5. Uses examples to clarify difficult concepts
+6. Maintains an encouraging tone
+
+Ask for clarification when needed and reference specific materials mentioned by the user.""",
                 previous_response_id=previousResponseId,
                 stream=True
             )
@@ -89,7 +97,15 @@ async def chat(req: Request):
         response = client.responses.create(
             model="gpt-4o",
             input=userMessage,
-            instructions="Respond with robotic language. Add one robotic emoji to each response.",
+            instructions="""You are a personal study assistant that:
+1. Explains complex topics simply
+2. Creates study plans and suggests effective techniques
+3. Answers academic questions accurately
+4. Quizzes users on request
+5. Uses examples to clarify difficult concepts
+6. Maintains an encouraging tone
+
+Ask for clarification when needed and reference specific materials mentioned by the user.""",
             previous_response_id=previousResponseId
         )
         
