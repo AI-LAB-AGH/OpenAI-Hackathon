@@ -178,7 +178,7 @@ async def update_note_endpoint(note_id: str, note: Note):
     try:
         # Update the file in vector store if it exists
         if existing_note.vector_store_file_id:
-            notes_manager.update_file(file_path=temp_file_path)
+            notes_manager.update_file(file_path=temp_file_path, file_id=existing_note.vector_store_file_id)
         else:
             # If no file ID exists, add as new file
             file_id = notes_manager.add_file_to_vector_store(file_path=temp_file_path)
