@@ -12,14 +12,26 @@ db = db_client.get_database("notes")
 notes = db.get_collection("notes")
 
 class Note(BaseModel):
-    id: str
+    id: Optional[str] = None
     title: str
     content: str
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
+    vector_store_file_id: Optional[str] = None
 
     class Config:
         populate_by_name = True
+        json_encoders = {
+            ObjectId: str
+        }
+        from_attributes = True
+
+    @classmethod
+    def from_mongo(cls, data: dict) -> Optional["Note"]:
+        if not data:
+            return None
+        data["id"] = str(data.pop("_id"))
+        return cls(**data)
 
 async def create_note(note: Note) -> Optional[Note]:
     note_dict = note.model_dump(exclude={"id"})
@@ -31,16 +43,14 @@ async def create_note(note: Note) -> Optional[Note]:
     created_note = await notes.find_one({"_id": result.inserted_id})
     if not created_note:
         return None
-    created_note["_id"] = str(created_note["_id"])
-    return Note(**created_note)
+    return Note.from_mongo(created_note)
 
 async def get_note(note_id: str) -> Optional[Note]:
     try:
         note = await notes.find_one({"_id": ObjectId(note_id)})
         if not note:
             return None
-        note["_id"] = str(note["_id"])
-        return Note(**note)
+        return Note.from_mongo(note)
     except:
         return None
 
@@ -48,8 +58,7 @@ async def get_all_notes() -> List[Note]:
     cursor = notes.find()
     notes_list = []
     async for note in cursor:
-        note["_id"] = str(note["_id"])
-        notes_list.append(Note(**note))
+        notes_list.append(Note.from_mongo(note))
     return notes_list
 
 async def update_note(note_id: str, note: Note) -> Optional[Note]:
@@ -65,8 +74,7 @@ async def update_note(note_id: str, note: Note) -> Optional[Note]:
         updated_note = await notes.find_one({"_id": ObjectId(note_id)})
         if not updated_note:
             return None
-        updated_note["_id"] = str(updated_note["_id"])
-        return Note(**updated_note)
+        return Note.from_mongo(updated_note)
     except:
         return None
 

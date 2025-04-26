@@ -113,17 +113,18 @@ async def create_note_endpoint(note: Note):
         file_id = notes_manager.add_file_to_vector_store(temp_file_path)
         
         # Create note with vector store file ID
-        note_dict = note.model_dump()
+        note_dict = note.model_dump(exclude={"id"})
         note_dict["vector_store_file_id"] = file_id
         created_note = await create_note(Note(**note_dict))
         
         if not created_note:
             raise HTTPException(status_code=500, detail="Failed to create note")
+            
+        # The Note model already handles the _id conversion in the create_note function
+        return created_note
     finally:
         # Clean up the temporary file
         os.unlink(temp_file_path)
-    
-    return created_note
 
 @app.get("/notes", response_model=list[Note])
 async def get_notes_endpoint():
@@ -153,12 +154,12 @@ async def update_note_endpoint(note_id: str, note: Note):
     
     try:
         # Update the file in vector store if it exists
-        if note_id:
-            notes_manager.update_file(note_id, temp_file_path)
+        if existing_note.vector_store_file_id:
+            notes_manager.update_file(existing_note.vector_store_file_id)
         else:
             # If no file ID exists, add as new file
             file_id = notes_manager.add_file_to_vector_store(temp_file_path)
-            note_dict = note.model_dump()
+            note_dict = note.model_dump(exclude={"id"})
             note_dict["vector_store_file_id"] = file_id
             note = Note(**note_dict)
         
@@ -179,7 +180,12 @@ async def delete_note_endpoint(note_id: str):
         raise HTTPException(status_code=404, detail="Note not found")
     
     # Delete from vector store if file ID exists
-    notes_manager.delete_file(note_id)
+    if note.vector_store_file_id:
+        try:
+            notes_manager.delete_file(note.vector_store_file_id)
+        except Exception as e:
+            # Log the error but continue with note deletion
+            print(f"Error deleting file from vector store: {e}")
     
     success = await delete_note(note_id)
     if not success:
