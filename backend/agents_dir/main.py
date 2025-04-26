@@ -9,11 +9,11 @@ from agents.voice import (
     VoiceWorkflowBase,
     VoiceWorkflowHelper
 )
-from agents_dir.custom_agents import *
+from custom_agents import *
 import numpy as np
 import json
-from agents_dir.voice_utils import AudioPlayer, record_audio
-from agents_dir.utils import get_speak
+from voice_utils import AudioPlayer, record_audio
+from utils import get_speak
 import os
 import librosa
 
@@ -136,7 +136,7 @@ async def prompt_voice_with_text(text):
     engine.save_to_file(text, 'test.mp3')
     engine.runAndWait()
 
-    audio_data, samplerate = librosa.load('path_to_your_audio_file.mp3', sr=None)
+    audio_data, samplerate = librosa.load('test.mp3', sr=None)
     audio_data = audio_data.astype(np.float32)
     audio_input = AudioInput(buffer=audio_data)
 
@@ -158,7 +158,7 @@ async def prompt_text_with_text(text):
     return result.final_output
 
 async def main():
-    result = await prompt_text_with_text("Hello, how are you?")
+    result = await prompt_voice_with_text("Hello, how are you?")
     print(result)
 
 if __name__ == "__main__":
