@@ -44,7 +44,7 @@ class NotesManager:
         # Delete from OpenAI's files storage
         self.client.files.delete(file_id=file_id)
     
-    def update_file(self, file_path: str):
+    def update_file(self, file_id: str, file_path: str):
         """Update a file in the vector store by replacing it with a new version.
         
         Args:
@@ -55,7 +55,7 @@ class NotesManager:
             raise ValueError("Vector store ID is not set")
         
         # Delete the existing file
-        self.delete_file(file_path)
+        self.delete_file(file_id)
         
         # Add the new version
         return self.add_file_to_vector_store(file_path)

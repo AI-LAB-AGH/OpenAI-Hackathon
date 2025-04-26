@@ -1,7 +1,7 @@
 # backend/main.py
 from fastapi import FastAPI, Request, HTTPException, UploadFile, File, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, Response
 from openai import OpenAI
 from dotenv import load_dotenv
 import os
@@ -174,7 +174,7 @@ async def update_note_endpoint(note_id: str, note: Note):
     try:
         # Update the file in vector store if it exists
         if existing_note.vector_store_file_id:
-            notes_manager.update_file(existing_note.vector_store_file_id)
+            notes_manager.update_file(existing_note.vector_store_file_id, temp_file_path)
         else:
             # If no file ID exists, add as new file
             file_id = notes_manager.add_file_to_vector_store(temp_file_path)
@@ -269,5 +269,45 @@ async def ocr_endpoint(
             # Clean up the temporary file
             os.unlink(temp_file_path)
             
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/notes/{note_id}/canvas")
+async def upload_canvas(note_id: str, file: UploadFile = File(...)):
+    if not file.content_type or not file.content_type.startswith('image/'):
+        raise HTTPException(status_code=400, detail="File must be an image")
+    
+    try:
+        # Read the image file
+        contents = await file.read()
+        
+        # Get the existing note
+        note = await get_note(note_id)
+        if not note:
+            raise HTTPException(status_code=404, detail="Note not found")
+        
+        # Update the note with the canvas
+        note_dict = note.model_dump(exclude={"id"})
+        note_dict["canvas_jpg"] = contents
+        updated_note = await update_note(note_id, Note(**note_dict))
+        
+        if not updated_note:
+            raise HTTPException(status_code=500, detail="Failed to update note with canvas")
+        
+        return {"message": "Canvas uploaded successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/notes/{note_id}/canvas")
+async def get_canvas(note_id: str):
+    try:
+        note = await get_note(note_id)
+        if not note:
+            raise HTTPException(status_code=404, detail="Note not found")
+        
+        if not note.canvas_jpg:
+            raise HTTPException(status_code=404, detail="No canvas found for this note")
+        
+        return Response(content=note.canvas_jpg, media_type="image/jpeg")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

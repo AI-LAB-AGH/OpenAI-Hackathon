@@ -18,6 +18,7 @@ class Note(BaseModel):
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
     vector_store_file_id: Optional[str] = None
+    canvas_jpg: Optional[bytes] = None  # Store the JPG image as bytes
 
     class Config:
         populate_by_name = True
@@ -25,6 +26,7 @@ class Note(BaseModel):
             ObjectId: str
         }
         from_attributes = True
+        arbitrary_types_allowed = True  # Allow bytes type for canvas_jpg
 
     @classmethod
     def from_mongo(cls, data: dict) -> Optional["Note"]:
