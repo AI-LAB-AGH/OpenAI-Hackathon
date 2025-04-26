@@ -16,7 +16,7 @@ export default function CanvasPage({ params }: { params: { id: string } }) {
   };
 
   return (
-    <div className="mx-auto">
+    <div className="mx-auto ">
       <div className="mb-4"></div>
 
       {/* Client component for interactive parts */}
