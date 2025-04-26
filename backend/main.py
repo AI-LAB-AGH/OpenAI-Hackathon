@@ -153,8 +153,8 @@ async def update_note_endpoint(note_id: str, note: Note):
     
     try:
         # Update the file in vector store if it exists
-        if existing_note.vector_store_file_id:
-            notes_manager.update_file(existing_note.vector_store_file_id, temp_file_path)
+        if note_id:
+            notes_manager.update_file(note_id, temp_file_path)
         else:
             # If no file ID exists, add as new file
             file_id = notes_manager.add_file_to_vector_store(temp_file_path)
@@ -179,8 +179,7 @@ async def delete_note_endpoint(note_id: str):
         raise HTTPException(status_code=404, detail="Note not found")
     
     # Delete from vector store if file ID exists
-    if note.vector_store_file_id:
-        notes_manager.delete_file(note.vector_store_file_id)
+    notes_manager.delete_file(note_id)
     
     success = await delete_note(note_id)
     if not success:
