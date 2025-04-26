@@ -4,13 +4,16 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse, Response
 from openai import OpenAI
 from dotenv import load_dotenv
-import os
-import json
+from typing import Literal
 from database.data_ops import Note, create_note, get_note, get_all_notes, update_note, delete_note
 from agents_dir.vector_store.notes_vector_store_manager import NotesManager
-from agents import Runner
 import tempfile
 import base64
+import json
+import os
+import shutil
+from pydantic import BaseModel
+from agents_dir.main import prompt_text_with_text, prompt_voice_with_voice
 from typing import Literal
 from pydantic import BaseModel
 from agents_dir.custom_agents import main_agent
@@ -22,6 +25,10 @@ app = FastAPI()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 notes_manager = NotesManager(vector_store_id=os.getenv("VECTOR_STORE_ID"))
 
+
+class ChatModel(BaseModel):
+    type: str
+    message: str | UploadFile
 
 app.add_middleware(
     CORSMiddleware,
@@ -43,6 +50,8 @@ class ChatRequest(BaseModel):
 async def ping():
     return {"message": "pong"}
 
+@app.post("/chat", response_model=ChatModel)
+async def chat(chat_model: ChatModel):
 @app.post("/chat-stream")
 async def chat_stream_endpoint(chat_request: ChatRequest):
     try:
@@ -82,11 +91,41 @@ async def chat_stream_endpoint(chat_request: ChatRequest):
 @app.post("/chat")
 async def chat(req: Request):
     try:
-        body = await req.json()
-        userMessage = body.get("message")
-        if not userMessage:
-            return {"error": "Message is required"}
+        type = chat_model.type
+        message = chat_model.message
+
+        if type == "text":
+            response = await prompt_text_with_text(message)
+        elif type == "voice":
+            response = await prompt_voice_with_voice(message)
+
+        with open("agents_dir/result.json", "r") as file:
+            file_contents = file.read()
+        json_response = json.loads(file_contents)
+
+        json_response['type'] = json_response.get('response_type', 'default_type')
+        json_response['message'] = json_response.get('response_content', {}).get('question', 'default_message')
+
+        return json_response
+    
+    except Exception as e:
+        return {"error": str(e)}
+
+@app.post("/voice-chat", response_model=ChatModel)
+async def chat(chat_model: ChatModel):
+    try:
+        message = chat_model.message
             
+        response = await prompt_text_with_text(message)
+
+        with open("agents_dir/result.json", "r") as file:
+            file_contents = file.read()
+        json_response = json.loads(file_contents)
+
+        json_response['type'] = json_response.get('response_type', 'default_type')
+        json_response['message'] = json_response.get('response_content', {}).get('question', 'default_message')
+
+        return json_response
         previousResponseId = body.get("previousResponseId")
 
         response = client.responses.create(
