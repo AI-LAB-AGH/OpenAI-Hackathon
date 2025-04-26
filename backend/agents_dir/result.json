@@ -1,1 +1,8 @@
-"Thank you for your answer! However, the pope elected in 2005 was Pope Benedict XVI. Keep up the effort!"
+{
+    "response_type": "OpenQuestion",
+    "response_content": {
+        "question": "What is inheritance in object-oriented programming?",
+        "how_difficult": 2,
+        "mark": 1
+    }
+}

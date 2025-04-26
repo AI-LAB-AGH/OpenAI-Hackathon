@@ -16,6 +16,7 @@ from agents_dir.voice_utils import AudioPlayer, record_audio
 from agents_dir.utils import get_speak
 import os
 import librosa
+import tempfile
 
 class SingleAgentVoiceWorkflow(VoiceWorkflowBase):
     def __init__(self, agent: Agent[Any], callbacks: SingleAgentWorkflowCallbacks | None = None):
@@ -86,12 +87,10 @@ class SingleAgentVoiceWorkflow(VoiceWorkflowBase):
         speak = ""
         response_type = main_result.last_agent.name
         try:
-            if hasattr(main_result.final_output, 'model_dump'):
-                main_result = main_result.final_output.model_dump()
-            else:
-                main_result = main_result.final_output
+            main_result = main_result.final_output.model_dump()
         except:
             main_result = main_result.final_output
+        main_result = {"response_type":response_type, "response_content":main_result}
 
         with open(os.path.join(os.path.dirname(__file__), 'result.json'), 'w') as json_file:
             json.dump(main_result, json_file, indent=4)
@@ -116,7 +115,16 @@ pipeline = VoicePipeline(
 )
 
 async def prompt_voice_with_voice(audio):
-    audio_input = AudioInput(buffer=audio)
+    # Save the audio to a temporary file
+    with tempfile.NamedTemporaryFile(delete=False, suffix='.webm') as temp_audio_file:
+        temp_audio_file.write(audio)
+        temp_audio_path = temp_audio_file.name
+
+    # Load the audio file
+    audio_data, samplerate = librosa.load(temp_audio_path, sr=None)
+    audio_data = audio_data.astype(np.float32)
+    audio_input = AudioInput(buffer=audio_data)
+
     result = await pipeline.run(audio_input)
 
     with AudioPlayer() as player:
@@ -129,6 +137,9 @@ async def prompt_voice_with_voice(audio):
 
         # Add 1 second of silence to the end of the stream to avoid cutting off the last audio.
         player.add_audio(np.zeros(12000 * 1, dtype=np.int16))
+
+    # Clean up the temporary file
+    os.unlink(temp_audio_path)
 
 import pyttsx3
 engine = pyttsx3.init()
@@ -154,8 +165,16 @@ async def prompt_voice_with_text(text):
         player.add_audio(np.zeros(12000 * 1, dtype=np.int16))
 
 async def prompt_text_with_text(text):
-    result = await Runner.run(main_agent, text)
-    return result.final_output
+    main_result = await Runner.run(main_agent, text)
+    response_type = main_result.last_agent.name
+    try:
+        main_result = main_result.final_output.model_dump()
+    except:
+        main_result = main_result.final_output
+    main_result = {"response_type":response_type, "response_content":main_result}
+
+    with open(os.path.join(os.path.dirname(__file__), 'result.json'), 'w') as json_file:
+        json.dump(main_result, json_file, indent=4)
 
 async def main():
     result = await prompt_text_with_text("Hello, how are you?")
