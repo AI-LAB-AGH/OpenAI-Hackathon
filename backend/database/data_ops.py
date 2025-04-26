@@ -12,7 +12,7 @@ db = db_client.get_database("notes")
 notes = db.get_collection("notes")
 
 class Note(BaseModel):
-    id: Optional[str] = Field(None, alias="_id")
+    id: str
     title: str
     content: str
     created_at: Optional[datetime] = None
