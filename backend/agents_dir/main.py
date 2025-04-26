@@ -126,7 +126,7 @@ async def prompt_voice_with_text(text):
     engine.save_to_file(text, 'test.mp3')
     engine.runAndWait()
 
-    audio_data, samplerate = librosa.load('path_to_your_audio_file.mp3', sr=None)
+    audio_data, samplerate = librosa.load('test.mp3', sr=None)
     audio_data = audio_data.astype(np.float32)
     audio_input = AudioInput(buffer=audio_data)
 
@@ -156,7 +156,7 @@ async def prompt_text_with_text(text):
         json.dump(main_result, json_file, indent=4)
 
 async def main():
-    result = await prompt_text_with_text("Hello, how are you?")
+    result = await prompt_voice_with_text("Hello, how are you?")
     print(result)
 
 if __name__ == "__main__":
