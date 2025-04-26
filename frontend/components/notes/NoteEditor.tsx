@@ -1,17 +1,28 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Note } from "@/lib/types";
 import { noteApi } from "@/lib/api";
-import { HiDotsVertical, HiTrash } from "react-icons/hi";
+import {
+  HiDotsVertical,
+  HiTrash,
+  HiEye,
+  HiPencil,
+  HiOutlinePlusCircle,
+  HiX,
+} from "react-icons/hi";
 import { useRouter } from "next/navigation";
+import ReactMarkdown from "react-markdown";
+import SignatureCanvas from "react-signature-canvas";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import FullscreenCanvas from "@/components/canvas/FullscreenCanvas";
+import { canvasStorage } from "@/lib/canvasStorage";
 
 interface NoteEditorProps {
   noteData: Note;
@@ -27,6 +38,39 @@ export default function NoteEditor({ noteData }: NoteEditorProps) {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [isPreviewMode, setIsPreviewMode] = useState(false);
+  const [showCanvas, setShowCanvas] = useState(false);
+  const [isCanvasFullscreen, setIsCanvasFullscreen] = useState(false);
+  const canvasRef = useRef<SignatureCanvas>(null);
+  const noteId = noteData.id || "new-note"; // Ensure we always have a string ID
+  const hasCanvas = canvasStorage.getCanvas(noteId) !== null;
+
+  const [windowDimensions, setWindowDimensions] = useState({
+    width: typeof window !== "undefined" ? window.innerWidth : 0,
+    height: typeof window !== "undefined" ? window.innerHeight : 0,
+  });
+
+  const [canvasData, setCanvasData] = useState<string | null>(null);
+
+  // Handle window resize when canvas is fullscreen
+  React.useEffect(() => {
+    const handleResize = () => {
+      if (isCanvasFullscreen) {
+        setWindowDimensions({
+          width: window.innerWidth,
+          height: window.innerHeight,
+        });
+
+        // Force canvas redraw with new dimensions
+        if (canvasRef.current) {
+          canvasRef.current.clear();
+        }
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [isCanvasFullscreen]);
 
   const formattedDate = noteData.created_at
     ? new Date(noteData.created_at).toLocaleDateString("en-US", {
@@ -36,6 +80,16 @@ export default function NoteEditor({ noteData }: NoteEditorProps) {
       })
     : "Unknown date";
 
+  const saveCanvasData = () => {
+    if (canvasRef.current && showCanvas) {
+      // Get canvas data as base64 string
+      const data = canvasRef.current.toDataURL("image/png");
+      setCanvasData(data);
+      return data;
+    }
+    return canvasData;
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
@@ -43,10 +97,14 @@ export default function NoteEditor({ noteData }: NoteEditorProps) {
     setSaveSuccess(false);
 
     try {
+      // Save canvas data if canvas is shown
+      const currentCanvasData = saveCanvasData();
+
       const updatedNote: Note = {
         ...noteData,
         title,
         content,
+        canvasData: currentCanvasData,
       };
 
       // If the note has an ID, we're updating an existing note
@@ -96,6 +154,18 @@ export default function NoteEditor({ noteData }: NoteEditorProps) {
     }
   };
 
+  const handleAddCanvas = () => {
+    setShowCanvas(true);
+  };
+
+  const handleCanvasClick = () => {
+    setIsCanvasFullscreen(true);
+  };
+
+  const handleExitFullscreen = () => {
+    setIsCanvasFullscreen(false);
+  };
+
   return (
     <div className="bg-white">
       <form className="space-y-4" onSubmit={handleSave}>
@@ -110,43 +180,79 @@ export default function NoteEditor({ noteData }: NoteEditorProps) {
               required
             />
 
-            {noteData.id && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    type="button"
-                    className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-                    disabled={isDeleting}
-                  >
-                    <HiDotsVertical size={24} className="text-gray-500" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem
-                    onClick={handleDelete}
-                    variant="destructive"
-                    disabled={isDeleting}
-                    className="cursor-pointer"
-                  >
-                    <HiTrash className="mr-2" />
-                    {isDeleting ? "Deleting..." : "Delete Note"}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
+            <div className="flex items-center">
+              <button
+                type="button"
+                onClick={() => setIsPreviewMode(!isPreviewMode)}
+                className="p-2 rounded-full hover:bg-gray-100 transition-colors mr-2"
+                title={isPreviewMode ? "Edit mode" : "Preview mode"}
+              >
+                {isPreviewMode ? (
+                  <HiPencil size={24} className="text-gray-500" />
+                ) : (
+                  <HiEye size={24} className="text-gray-500" />
+                )}
+              </button>
+
+              {noteData.id && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      type="button"
+                      className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                      disabled={isDeleting}
+                    >
+                      <HiDotsVertical size={24} className="text-gray-500" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem
+                      onClick={handleDelete}
+                      variant="destructive"
+                      disabled={isDeleting}
+                      className="cursor-pointer"
+                    >
+                      <HiTrash className="mr-2" />
+                      {isDeleting ? "Deleting..." : "Delete Note"}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </div>
           </div>
 
           <p className="text-gray-500 mb-6">Created on {formattedDate}</p>
         </div>
 
         <div className="prose max-w-none">
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            rows={12}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Write your note content here..."
-          ></textarea>
+          {isPreviewMode ? (
+            <div className="min-h-[300px] p-4 border border-gray-300 rounded-md bg-white overflow-auto">
+              <ReactMarkdown>{content}</ReactMarkdown>
+            </div>
+          ) : (
+            <textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              rows={12}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Write your note content here..."
+            ></textarea>
+          )}
+        </div>
+
+        {showCanvas && (
+          <FullscreenCanvas
+            noteId={noteId}
+            onClose={() => setShowCanvas(false)}
+          />
+        )}
+
+        <div
+          className="flex justify-center items-center cursor-pointer hover:text-blue-500 text-gray-600 mt-2 mb-2"
+          onClick={handleAddCanvas}
+        >
+          <HiPencil size={24} />
+          <span className="ml-2">Open Canvas</span>
         </div>
 
         {saveError && <div className="text-red-500 mt-2">{saveError}</div>}
