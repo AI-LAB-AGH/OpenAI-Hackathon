@@ -1,5 +1,5 @@
 # backend/main.py
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request, HTTPException, UploadFile, File, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from openai import OpenAI
@@ -7,8 +7,11 @@ from dotenv import load_dotenv
 import os
 import json
 from database.data_ops import Note, create_note, get_note, get_all_notes, update_note, delete_note
-from agents.vector_store.notes_vector_store_manager import NotesManager
+from agents_dir.vector_store.notes_vector_store_manager import NotesManager
+from agents import Runner
 import tempfile
+import base64
+from typing import Literal
 
 load_dotenv()
 
@@ -192,3 +195,63 @@ async def delete_note_endpoint(note_id: str):
         raise HTTPException(status_code=404, detail="Note not found")
     
     return {"message": "Note deleted successfully"}
+
+@app.post("/ocr")
+async def ocr_endpoint(
+    file: UploadFile = File(...),
+    format: Literal["markdown", "latex"] = Query("markdown", description="Output format for the extracted text")
+):
+    if file.content_type is None or not file.content_type.startswith('image/'):
+        raise HTTPException(status_code=400, detail="File must be an image")
+    
+    try:
+        # Read the image file
+        contents = await file.read()
+        
+        # Create a temporary file
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.png') as temp_file:
+            temp_file.write(contents)
+            temp_file_path = temp_file.name
+        
+        try:
+            
+            # OCR via vision-enabled chat
+            response = client.chat.completions.create(
+                model="gpt-4o",
+                messages=[
+                    {
+                        "role": "system", 
+                        "content": "You are an OCR assistant. Extract all text from the provided image and format it in markdown.  Do not include any other text or comments. Don't include markdown''' at the beginning or end of your response. "
+                    },
+                    {
+                        "role": "user", 
+                        "content": [
+                            {
+                                "type": "text", 
+                                "text": f"Extract all text or equations from this image and format it in markdown" 
+                            },
+                            {
+                                "type": "image_url",
+                                "image_url": {
+                                    "url": f"data:image/png;base64,{base64.b64encode(contents).decode('utf-8')}",
+                                    "detail": "high"
+                                },
+                               
+                                
+                            }
+                        ]
+                    }
+                ]
+            )
+            
+            return {
+                "text": response.choices[0].message.content,
+                "format": format
+            }
+            
+        finally:
+            # Clean up the temporary file
+            os.unlink(temp_file_path)
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
