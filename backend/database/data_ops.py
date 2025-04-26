@@ -16,10 +16,13 @@ class Note(BaseModel):
     content: str
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
+    vector_store_file_id: Optional[str] = None
 
 class NoteInDB(Note):
     id: str = Field(alias="_id")
-    vector_store_file_id: Optional[str] = None
+    
+    class Config:
+        populate_by_name = True
 
 async def create_note(note: Note) -> Optional[NoteInDB]:
     note_dict = note.model_dump()
