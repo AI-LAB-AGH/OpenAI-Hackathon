@@ -72,7 +72,6 @@ function NewestNotes() {
               note.content.substring(0, 100) +
               (note.content.length > 100 ? "..." : "")
             }
-            type="text"
           />
         ))}
     </div>
