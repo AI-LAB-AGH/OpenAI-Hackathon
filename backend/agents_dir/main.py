@@ -9,11 +9,11 @@ from agents.voice import (
     VoiceWorkflowBase,
     VoiceWorkflowHelper
 )
-from custom_agents import *
+from agents_dir.custom_agents import *
 import numpy as np
 import json
-from voice_utils import AudioPlayer, record_audio
-from utils import get_speak
+from agents_dir.voice_utils import AudioPlayer, record_audio
+from agents_dir.utils import get_speak
 import os
 import librosa
 

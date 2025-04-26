@@ -1,5 +1,5 @@
 from agents import Agent, Runner, FileSearchTool, ModelSettings, TResponseInputItem
-from prompts import *
+from agents_dir.prompts import *
 
 speaking_agent = Agent(
     name="Speaking",
