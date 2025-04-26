@@ -13,6 +13,8 @@ import tempfile
 import base64
 from typing import Literal
 
+from agents_dir.main import prompt_text_with_text
+
 load_dotenv()
 
 app = FastAPI()
@@ -95,22 +97,7 @@ async def chat(req: Request):
         if not userMessage:
             return {"error": "Message is required"}
             
-        previousResponseId = body.get("previousResponseId")
-
-        response = client.responses.create(
-            model="gpt-4o",
-            input=userMessage,
-            instructions="""You are a personal study assistant that:
-1. Explains complex topics simply
-2. Creates study plans and suggests effective techniques
-3. Answers academic questions accurately
-4. Quizzes users on request
-5. Uses examples to clarify difficult concepts
-6. Maintains an encouraging tone
-
-Ask for clarification when needed and reference specific materials mentioned by the user.""",
-            previous_response_id=previousResponseId
-        )
+        response = await prompt_text_with_text(userMessage)
         
         return response
     
