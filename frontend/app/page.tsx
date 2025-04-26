@@ -44,7 +44,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="bg-white gap-16 flex flex-col min-h-screen py-8 w-full ">
+    <div className="gap-16 flex max-w-5xl mx-auto flex-col min-h-screen py-8 w-full">
       <section id="chat">
         <h1 className="text-2xl mb-6 font-bold">AI Assistant</h1>
         <Button asChild>
