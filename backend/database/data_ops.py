@@ -4,10 +4,14 @@ import motor.motor_asyncio
 from pydantic import BaseModel, Field
 from typing import List, Optional
 from bson import ObjectId
+import base64
 
 
 print(os.getenv("MONGODB_URL"))
-db_client = motor.motor_asyncio.AsyncIOMotorClient(os.getenv("MONGODB_URL"))
+
+UWAGA_MONGO = "mongodb+srv://adasta146:KOghmcuM1RwR84SN@cluster0.plxr9m4.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+
+db_client = motor.motor_asyncio.AsyncIOMotorClient(UWAGA_MONGO)
 db = db_client.get_database("notes")
 notes = db.get_collection("notes")
 
@@ -18,6 +22,7 @@ class Note(BaseModel):
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
     vector_store_file_id: Optional[str] = None
+    canvas_jpg: Optional[bytes] = None
 
     class Config:
         populate_by_name = True
@@ -40,6 +45,7 @@ async def create_note(note: Note) -> Optional[Note]:
     result = await notes.insert_one(note_dict)
     if not result.inserted_id:
         return None
+    
     created_note = await notes.find_one({"_id": result.inserted_id})
     if not created_note:
         return None
@@ -50,6 +56,9 @@ async def get_note(note_id: str) -> Optional[Note]:
         note = await notes.find_one({"_id": ObjectId(note_id)})
         if not note:
             return None
+        # Decode canvas_jpg if it exists
+        if 'canvas_jpg' in note and note['canvas_jpg'] is not None:
+            note['canvas_jpg'] = base64.b64encode(note['canvas_jpg']).decode('utf-8')
         return Note.from_mongo(note)
     except:
         return None
@@ -58,6 +67,8 @@ async def get_all_notes() -> List[Note]:
     cursor = notes.find()
     notes_list = []
     async for note in cursor:
+        if 'canvas_jpg' in note and note['canvas_jpg'] is not None:
+            note['canvas_jpg'] = base64.b64encode(note['canvas_jpg']).decode('utf-8')
         notes_list.append(Note.from_mongo(note))
     return notes_list
 
