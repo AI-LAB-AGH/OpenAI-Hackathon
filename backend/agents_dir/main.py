@@ -156,4 +156,11 @@ async def prompt_voice_with_text(text):
 
 async def prompt_text_with_text(text):
     result = await Runner.run(main_agent, text)
-    return result
+    return result.final_output
+
+async def main():
+    result = await prompt_text_with_text("Hello, how are you?")
+    print(result)
+
+if __name__ == "__main__":
+    asyncio.run(main())
