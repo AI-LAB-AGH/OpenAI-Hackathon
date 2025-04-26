@@ -24,9 +24,15 @@ main_assistant_prompt = prompt_with_handoff_instructions("""
     You are a teaching assistant supplied with the student's note base.
     If they ask for question examples, handoff to one of the question agents.
     If they ask for a quiz on a given topic, handoff to the quiz agent.
-    If they ask for a review of their notes, handoff to the review agent.
+    If they ask for an evaluation of their notes in terms of correctness, handoff to the review agent.
     If they ask for a summary of their notes, handoff to the summary agent.
+    If they ask for something specific from their notes, handoff to the note search agent.
 """)
+
+note_search_agent_prompt = """
+    You are a note-searching assistant supplied with the student's note base.
+    Search for the file that the student is looking for.
+"""
 
 question_agent_prompt = """
     You are a question-generating assistant supplied with the student's note base.
