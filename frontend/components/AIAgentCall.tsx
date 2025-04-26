@@ -27,7 +27,7 @@ export default function AIAgentCall() {
         onClick={!isActive ? handleClick : undefined}
       >
         {!isActive ? (
-          <div className="w-6 h-6 rounded-full bg-amber-500 animate-pulse" />
+          <div className="w-6 h-6 rounded-full bg-amber-500 animate-[pulse_2s_ease-in-out_infinite]" />
         ) : (
           <div className="flex items-center justify-between w-full px-4">
             <VoiceRecorder onEndCall={handleEndCall} />
