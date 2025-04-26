@@ -1,1 +1,4 @@
-"Hello! I'm here to help you with your notes and learning. How can I assist you today?"
+{
+    "response_type": "NoteSearch",
+    "response_content": "You wrote that \"Trawa\" (grass) is red in color."
+}
