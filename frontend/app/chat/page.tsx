@@ -39,7 +39,7 @@ export default function ChatPage() {
         <div className="w-fit flex flex-col items-center pt-2">
           <button
             onClick={isSidebarShown ? hideSidebar : showSidebar}
-            className="cursor-pointer text-neutral-600 hover:bg-neutral-100 rounded-md"
+            className="p-2 cursor-pointer text-neutral-600 hover:bg-neutral-100 rounded-md transition-colors"
           >
             <HiMenu size={24} />
           </button>
@@ -47,7 +47,7 @@ export default function ChatPage() {
         <div
           className={`transition-all duration-300 ${
             isSidebarShown
-              ? "w-64 opacity-100 bg-white shadow-lg"
+              ? "w-64 opacity-100 bg-white border-r border-neutral-200"
               : "w-0 opacity-0"
           }`}
         >

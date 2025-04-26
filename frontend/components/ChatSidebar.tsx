@@ -1,7 +1,7 @@
 "use client";
 import { db } from "@/db/db";
 import { useLiveQuery } from "dexie-react-hooks";
-import { HiMenu, HiOutlineChat, HiTrash } from "react-icons/hi";
+import { HiMenu, HiOutlineChat, HiTrash, HiX } from "react-icons/hi";
 
 interface ChatCardProps {
   id: number;
@@ -55,33 +55,27 @@ function ChatSidebar({
   const chats = useLiveQuery(() => db.chats.toArray()) || [];
 
   return (
-    <div className="h-full border-r mr-4 pr-4">
-      <div className="mb-4 flex  justify-end pt-2 text-neutral-600 items-center">
-        <button className="p-1 cursor-pointer text-neutral-600 hover:bg-neutral-100 rounded-md">
-          <HiOutlineChat
-            className="cursor-pointer"
-            size={24}
-            onClick={() => onChatSelect(null)}
-          />
+    <div className="h-full flex flex-col">
+      <div className="flex items-center justify-between p-4 border-b border-neutral-200">
+        <h2 className="text-lg font-semibold text-neutral-800">Chats</h2>
+        <button
+          onClick={onToggle}
+          className="p-2 cursor-pointer text-neutral-600 hover:bg-neutral-100 rounded-md transition-colors"
+        >
+          <HiX size={20} />
         </button>
       </div>
-
-      <ol className="flex flex-col-reverse flex-dire gap-2">
+      <div className="flex-1 overflow-y-auto p-4">
         {chats.map((chat) => (
-          <li key={chat.id}>
-            <ChatCard
-              id={chat.id}
-              title={chat.title}
-              isActive={activeChatId === chat.id}
-              onSelect={onChatSelect}
-            />
-          </li>
+          <ChatCard
+            key={chat.id}
+            id={chat.id}
+            title={chat.title}
+            isActive={chat.id === activeChatId}
+            onSelect={onChatSelect}
+          />
         ))}
-
-        {chats.length === 0 && (
-          <p className="text-gray-500">New chats will appear here</p>
-        )}
-      </ol>
+      </div>
     </div>
   );
 }
