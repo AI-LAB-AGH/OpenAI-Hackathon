@@ -14,6 +14,7 @@ export default function NewNotePage() {
     title: "",
     content: "",
     created_at: new Date().toISOString(),
+    canvasData: null,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);

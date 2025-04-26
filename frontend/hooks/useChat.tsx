@@ -28,6 +28,8 @@ export function useChat() {
         previousResponseId,
       });
 
+      console.log(response);
+
       // Add assistant's response to database
       await db.messages.add({
         chatId,

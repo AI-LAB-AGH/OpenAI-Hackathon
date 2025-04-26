@@ -226,7 +226,7 @@ export default function NoteEditor({ noteData }: NoteEditorProps) {
 
         <div className="prose max-w-none">
           {isPreviewMode ? (
-            <div className="min-h-[300px] p-4 border border-gray-300 rounded-md bg-white overflow-auto">
+            <div className="min-h-[300px]   rounded-md bg-white overflow-auto">
               <ReactMarkdown>{content}</ReactMarkdown>
             </div>
           ) : (
@@ -234,7 +234,7 @@ export default function NoteEditor({ noteData }: NoteEditorProps) {
               value={content}
               onChange={(e) => setContent(e.target.value)}
               rows={12}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Write your note content here..."
             ></textarea>
           )}
