@@ -2,7 +2,7 @@ import { useState } from "react";
 import { db } from "@/db/db";
 import axios from "axios";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 export function useChat() {
   const [isLoading, setIsLoading] = useState(false);
