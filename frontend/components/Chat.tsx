@@ -1,10 +1,10 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import ChatInput from "./ChatInput";
 import Message from "./Message";
 import LoadingDot from "./LoadingDot";
 import { HiMenu } from "react-icons/hi";
-import { useChat } from "@/hooks/useChat";
+import { useStreamingChat } from "@/hooks/useChat";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "@/db/db";
 
@@ -19,7 +19,7 @@ export default function Chat({
   activeChatId,
   onCreateChat,
 }: ChatProps) {
-  const { isLoading, sendMessage } = useChat();
+  const { isLoading, streamingMessage, sendMessage } = useStreamingChat();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Get messages from database
@@ -40,7 +40,7 @@ export default function Chat({
 
   useEffect(() => {
     scrollToBottom();
-  }, [dbMessages, isLoading]);
+  }, [dbMessages, isLoading, streamingMessage]);
 
   const handleSendMessage = async (message: string) => {
     // If no active chat, create a new one
@@ -53,10 +53,16 @@ export default function Chat({
       onCreateChat(newChatId);
 
       // Using the newly created chat
-      sendMessage(message, newChatId, null);
+      sendMessage(message, newChatId, null, () => {
+        // Callback when streaming is complete
+        console.log("Streaming complete");
+      });
     } else {
       // Using existing chat
-      sendMessage(message, activeChatId, null);
+      sendMessage(message, activeChatId, null, () => {
+        // Callback when streaming is complete
+        console.log("Streaming complete");
+      });
     }
   };
 
@@ -74,7 +80,10 @@ export default function Chat({
         {dbMessages.map((msg, index) => (
           <Message key={index} content={msg.content} role={msg.role} />
         ))}
-        {isLoading && <LoadingDot />}
+        {isLoading && streamingMessage && (
+          <Message content={streamingMessage} role="assistant" />
+        )}
+        {isLoading && !streamingMessage && <LoadingDot />}
         <div ref={messagesEndRef} />
       </div>
 

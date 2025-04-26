@@ -22,3 +22,28 @@ export default function Message({ content, role = "assistant" }: MessageProps) {
     </div>
   );
 }
+
+// Add styles for typing animation
+const styles = `
+  .typing {
+    animation: typing 0.1s ease-in-out;
+  }
+
+  @keyframes typing {
+    from {
+      opacity: 0.5;
+      transform: translateY(2px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+`;
+
+// Add the styles to the document
+if (typeof document !== 'undefined') {
+  const styleSheet = document.createElement('style');
+  styleSheet.textContent = styles;
+  document.head.appendChild(styleSheet);
+}

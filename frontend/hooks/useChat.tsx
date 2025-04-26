@@ -82,31 +82,66 @@ export function useStreamingChat() {
         createdAt: new Date(),
       });
 
-      const eventSource = new EventSource(
-        `${API_URL}/chat/stream?message=${encodeURIComponent(messageText)}`
-      );
+      const response = await fetch(`${API_URL}/chat-stream`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: messageText,
+          previousResponseId: previousResponseId
+        })
+      });
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
       let fullMessage = "";
 
-      eventSource.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        const chunk = data.content;
-        fullMessage += chunk;
-        setStreamingMessage(fullMessage);
-      };
+      if (!reader) {
+        throw new Error('No reader available');
+      }
 
-      eventSource.onerror = async () => {
-        eventSource.close();
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value);
+          const lines = chunk.split('\n');
+          
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const data = JSON.parse(line.slice(6));
+              if (data.type === "message") {
+                fullMessage += data.content;
+                setStreamingMessage(fullMessage);
+              } else if (data.type === "final") {
+                setIsLoading(false);
+                await db.messages.update(tempMessageId, {
+                  content: fullMessage,
+                });
+                onStreamComplete(fullMessage);
+                return;
+              } else if (data.type === "error") {
+                throw new Error(data.content);
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error reading stream:', error);
         setIsLoading(false);
-        
-        // Update the temporary message with the full content
         await db.messages.update(tempMessageId, {
-          content: fullMessage,
+          content: fullMessage || "Sorry, there was an error processing your request.",
         });
-        
-        onStreamComplete(fullMessage);
-      };
+        onStreamComplete(fullMessage || "Sorry, there was an error processing your request.");
+      }
     } catch (error) {
+      console.error('Error in streaming chat:', error);
       await db.messages.add({
         chatId,
         role: "assistant",
