@@ -1,5 +1,5 @@
 # backend/main.py
-from fastapi import FastAPI, Request, HTTPException, UploadFile, File, Query
+from fastapi import FastAPI, Request, HTTPException, UploadFile, File, Query, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse, Response
 from openai import OpenAI
@@ -23,6 +23,17 @@ from agents import Runner
 load_dotenv()
 
 app = FastAPI()
+
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # Frontend URL
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["*"]
+)
+
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 notes_manager = NotesManager(vector_store_id=os.getenv("VECTOR_STORE_ID"))
 
@@ -108,42 +119,30 @@ async def chat(chat_model: ChatModel):
     except Exception as e:
         return {"error": str(e)}
 
-@app.post("/voice-chat", response_model=ChatModel)
-async def voice_chat(chat_model: ChatModel):
+@app.post("/voice-chat")
+async def voice_chat(message: UploadFile = File(...), type: str = Form(...)):
     try:
-        message = chat_model.message
+        if type != "voice":
+            raise HTTPException(status_code=400, detail="Type must be 'voice'")
             
-        response = await prompt_text_with_text(message)
-
-        with open("agents_dir/result.json", "r") as file:
-            file_contents = file.read()
-        json_response = json.loads(file_contents)
-
-        json_response['type'] = json_response.get('response_type', 'default_type')
-        json_response['message'] = json_response.get('response_content', {}).get('question', 'default_message')
-
-        return json_response
-        previousResponseId = body.get("previousResponseId")
-
-        response = client.responses.create(
-            model="gpt-4o",
-            input=userMessage,
-            instructions="""You are a personal study assistant that:
-1. Explains complex topics simply
-2. Creates study plans and suggests effective techniques
-3. Answers academic questions accurately
-4. Quizzes users on request
-5. Uses examples to clarify difficult concepts
-6. Maintains an encouraging tone
-
-Ask for clarification when needed and reference specific materials mentioned by the user.""",
-            previous_response_id=previousResponseId
-        )
+        # Read the audio file content
+        audio_content = await message.read()
         
-        return response
+        # Process the audio and get the response
+        audio_response = await prompt_voice_with_voice(audio_content)
+
+        # Return the audio response
+        return Response(
+            content=audio_response,
+            media_type="audio/wav",
+            headers={
+                "Content-Disposition": "attachment; filename=response.wav"
+            }
+        )
     
     except Exception as e:
-        return {"error": str(e)}
+        print(f"Error in voice-chat endpoint: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/notes", response_model=Note)
 async def create_note_endpoint(note: Note):

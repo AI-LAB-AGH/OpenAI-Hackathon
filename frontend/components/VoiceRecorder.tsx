@@ -1,6 +1,9 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import { HiMicrophone, HiPhone } from "react-icons/hi";
+import axios from "axios";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 interface VoiceRecorderProps {
   onEndCall: () => void;
@@ -42,15 +45,45 @@ export default function VoiceRecorder({ onEndCall }: VoiceRecorderProps) {
         }
       };
 
-      mediaRecorder.onstop = () => {
+      mediaRecorder.onstop = async () => {
         const blob = new Blob(chunksRef.current, { type: "audio/wav" });
         setAudioBlob(blob);
-        const url = URL.createObjectURL(blob);
-        setAudioUrl(url);
-        // Auto-play the recording
-        if (audioRef.current) {
-          audioRef.current.src = url;
-          audioRef.current.play();
+
+        try {
+          // Create FormData with the correct structure
+          const formData = new FormData();
+          formData.append("type", "voice");
+          formData.append("message", blob, "recording.wav");
+
+          // Send the request with axios
+          const response = await axios.post(`${API_URL}/voice-chat`, formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+            responseType: "blob", // Expect binary response
+            withCredentials: true, // Include credentials for CORS
+          });
+
+          // Create URL from the response blob and play it
+          const agentAudioUrl = URL.createObjectURL(response.data);
+          if (audioRef.current) {
+            audioRef.current.src = agentAudioUrl;
+            audioRef.current.play();
+          }
+
+          // Clean up the URL after playing
+          audioRef.current?.addEventListener("ended", () => {
+            URL.revokeObjectURL(agentAudioUrl);
+          });
+        } catch (error) {
+          console.error("Error sending audio to voice-chat endpoint:", error);
+          if (axios.isAxiosError(error)) {
+            console.error("Error details:", {
+              status: error.response?.status,
+              data: error.response?.data,
+              headers: error.response?.headers,
+            });
+          }
         }
       };
 
