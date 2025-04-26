@@ -67,7 +67,7 @@ export default function Chat({
   };
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col mx-auto max-w-5xl">
       <div className="flex justify-between items-center mb-4">
         {onShowSidebar && (
           <button onClick={onShowSidebar} className="p-2 cursor-pointer">

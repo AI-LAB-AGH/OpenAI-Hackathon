@@ -2,7 +2,7 @@ import NoteCard from "@/components/NoteCard";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { HiOutlineDocumentText } from "react-icons/hi";
+import { HiOutlineDocumentText, HiOutlinePlusCircle } from "react-icons/hi";
 import NewestNotes from "@/components/home/NewestNotes";
 
 export default function Home() {
@@ -36,11 +36,18 @@ export default function Home() {
       <section id="notes">
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold">My Notes</h1>
+            <h1 className="text-2xl font-bold">Recent notes</h1>
           </div>
-          <Button variant="link" asChild>
-            <Link href="/notes/new">Create New Note</Link>
-          </Button>
+          <div className="flex items-center">
+            <Button variant="ghost" asChild>
+              <Link href="/notes">View All Notes</Link>
+            </Button>
+            <Button variant="ghost" asChild>
+              <Link href="/notes/new" className="flex items-center gap-2">
+                <HiOutlinePlusCircle size={32} />
+              </Link>
+            </Button>
+          </div>
         </div>
 
         <NewestNotes />

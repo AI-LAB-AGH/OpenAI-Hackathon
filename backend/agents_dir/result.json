@@ -1,4 +1,8 @@
 {
-    "response_type": "NoteSearch",
-    "response_content": "You wrote that \"Trawa\" (grass) is red in color."
+    "response_type": "OpenQuestion",
+    "response_content": {
+        "question": "What did the DNA say to the RNA?",
+        "how_difficult": 1,
+        "mark": 0
+    }
 }

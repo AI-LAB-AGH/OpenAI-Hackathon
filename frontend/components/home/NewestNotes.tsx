@@ -19,7 +19,7 @@ function NewestNotes() {
           throw new Error("Failed to load notes");
         }
 
-        const sortedNotes = result.notes.slice(0, 5);
+        const sortedNotes = result.notes.slice(0, 6);
         // TODO: add date sorting
 
         setNotes(sortedNotes);
@@ -36,7 +36,7 @@ function NewestNotes() {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {[...Array(5)].map((_, index) => (
           <div
             key={index}

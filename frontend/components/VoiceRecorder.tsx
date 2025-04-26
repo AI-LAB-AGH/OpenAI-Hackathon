@@ -1,6 +1,10 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { HiMicrophone, HiPhone } from "react-icons/hi";
+import {
+  HiMicrophone,
+  HiOutlinePhoneMissedCall,
+  HiPhone,
+} from "react-icons/hi";
 import axios from "axios";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -50,22 +54,26 @@ export default function VoiceRecorder({ onEndCall }: VoiceRecorderProps) {
         setAudioBlob(blob);
 
         try {
-          // Create FormData with the correct structure
+          // Create FormData with the audio file
           const formData = new FormData();
-          formData.append("type", "voice");
           formData.append("message", blob, "recording.wav");
 
-          // Send the request with axios
-          const response = await axios.post(`${API_URL}/voice-chat`, formData, {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-            responseType: "blob", // Expect binary response
-            withCredentials: true, // Include credentials for CORS
+          // Send the request with fetch instead of axios
+          const response = await fetch(`${API_URL}/voice-chat`, {
+            method: "POST",
+            body: formData,
+            credentials: "include",
           });
 
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          // Get the response as a blob
+          const responseBlob = await response.blob();
+
           // Create URL from the response blob and play it
-          const agentAudioUrl = URL.createObjectURL(response.data);
+          const agentAudioUrl = URL.createObjectURL(responseBlob);
           if (audioRef.current) {
             audioRef.current.src = agentAudioUrl;
             audioRef.current.play();
@@ -77,13 +85,6 @@ export default function VoiceRecorder({ onEndCall }: VoiceRecorderProps) {
           });
         } catch (error) {
           console.error("Error sending audio to voice-chat endpoint:", error);
-          if (axios.isAxiosError(error)) {
-            console.error("Error details:", {
-              status: error.response?.status,
-              data: error.response?.data,
-              headers: error.response?.headers,
-            });
-          }
         }
       };
 
@@ -148,7 +149,7 @@ export default function VoiceRecorder({ onEndCall }: VoiceRecorderProps) {
           onClick={handleEndCall}
           className="p-2 rounded-full bg-destructive text-destructive-foreground transition-colors"
         >
-          <HiPhone className="w-4 h-4" />
+          <HiOutlinePhoneMissedCall className="w-4 h-4 text-white" />
         </button>
       </div>
 

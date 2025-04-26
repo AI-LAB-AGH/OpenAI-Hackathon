@@ -11,6 +11,7 @@ import {
   HiPencil,
   HiOutlinePlusCircle,
   HiX,
+  HiOutlineDocumentText,
 } from "react-icons/hi";
 import { useRouter } from "next/navigation";
 import ReactMarkdown from "react-markdown";
@@ -23,6 +24,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import FullscreenCanvas from "@/components/canvas/FullscreenCanvas";
 import { canvasStorage } from "@/lib/canvasStorage";
+import Link from "next/link";
 
 interface NoteEditorProps {
   noteData: Note;
@@ -38,7 +40,7 @@ export default function NoteEditor({ noteData }: NoteEditorProps) {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
-  const [isPreviewMode, setIsPreviewMode] = useState(false);
+  const [isPreviewMode, setIsPreviewMode] = useState(true);
   const [showCanvas, setShowCanvas] = useState(false);
   const [isCanvasFullscreen, setIsCanvasFullscreen] = useState(false);
   const canvasRef = useRef<SignatureCanvas>(null);

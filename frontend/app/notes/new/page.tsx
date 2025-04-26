@@ -62,7 +62,7 @@ export default function NewNotePage() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto py-8">
+    <div className="max-w-5xl mx-auto py-8">
       <div className="mb-6">
         <Button variant="link" asChild className="pl-0">
           <Link href="/">← Back to notes</Link>

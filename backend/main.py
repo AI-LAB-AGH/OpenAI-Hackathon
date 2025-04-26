@@ -100,22 +100,25 @@ async def chat(chat_model: ChatModel):
     except Exception as e:
         return {"error": str(e)}
 
-@app.post("/voice-chat", response_model=ChatModel)
-async def voice_chat(chat_model: ChatModel):
+@app.post("/voice-chat")
+async def voice_chat(message: UploadFile = File(...)):
     try:
-        message = chat_model.message
-            
-        response = await prompt_text_with_text(message)
-
-        with open("agents_dir/result.json", "r") as file:
-            file_contents = file.read()
-        json_response = json.loads(file_contents)
-
-        json_response['type'] = json_response.get('response_type', 'default_type')
-        json_response['message'] = json_response.get('response_content', {}).get('question', 'default_message')
-
-        return json_response
+        # Read the audio file content
+        audio_content = await message.read()
+        
+        # Process the audio through the voice pipeline
+        response = await prompt_voice_with_voice(audio_content)
+        
+        # Return the audio response as a streaming response
+        return StreamingResponse(
+            iter([response]),
+            media_type="audio/wav",
+            headers={
+                "Content-Disposition": "attachment; filename=response.wav"
+            }
+        )
     except Exception as e:
+        print(f"Error in voice-chat endpoint: {str(e)}")
         return {"error": str(e)}
 
 @app.post("/notes", response_model=Note)
